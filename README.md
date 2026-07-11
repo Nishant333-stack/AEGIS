@@ -132,7 +132,7 @@ docs/          ARCHITECTURE, RESOURCES, DEMO_SCRIPT
 ## Project Architecture 
 
 <p align="center">
-  <img src="architecture.jpeg" width="800" alt="architecture diagram">
+  <img src="architecture.jpeg" width="1100" alt="architecture diagram">
 </p>
 
 ## Security note
