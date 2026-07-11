@@ -129,6 +129,12 @@ tests/         pytest suite
 docs/          ARCHITECTURE, RESOURCES, DEMO_SCRIPT
 ```
 
+## Project Architecture 
+
+<p align="center">
+  <img src="architecture.jpeg" width="500" alt="architecture diagram">
+</p>
+
 ## Security note
 
 The pure-python ML-KEM/ML-DSA libraries are reference implementations (not
