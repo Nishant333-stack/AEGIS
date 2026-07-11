@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# uv / venv
+.venv/
+# Keep uv.lock committed for reproducible installs.
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# AEGIS runtime artifacts
+*.log
+vault_state.json

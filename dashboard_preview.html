@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AEGIS — Insider Threat & Privileged Access Defense</title>
+<style>
+  :root{
+    --bg:#f4f3ef; --panel:#ffffff; --panel2:#ffffff;
+    --line:#e2dfd8; --line2:#eceae4; --ink:#141414; --mut:#6d6d6d;
+    --navy:#1f3a5f; --steel:#7a9cc6;
+    --grn:#256d46; --amb:#a07618; --org:#b04a17; --red:#9e1b32;
+    --serif:Georgia,'Times New Roman',Times,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.55 'Helvetica Neue',-apple-system,'Segoe UI',Roboto,Arial,sans-serif}
+  a{color:var(--navy)}
+  .top{display:flex;align-items:center;gap:18px;padding:16px 28px;
+    border-bottom:1px solid var(--line);background:#fff;
+    position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:38px;height:38px;display:grid;place-items:center;
+    background:var(--navy);color:#fff;font-family:var(--serif);font-size:20px}
+  .brand h1{font-size:22px;margin:0;letter-spacing:.2px;font-family:var(--serif);font-weight:600}
+  .brand span{color:var(--mut);font-size:11.5px;letter-spacing:.3px}
+  .badges{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+  .badge{padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.5px;
+    border:1px solid var(--line);background:#fff;white-space:nowrap;color:#444;text-transform:uppercase}
+  .badge.qs{color:var(--navy);border-color:#b9c9de;background:#eef2f8}
+  .badge.cl{color:var(--amb);border-color:#e0d2ae;background:#faf6ea}
+  .badge.ok{color:var(--grn);border-color:#bcd8c8;background:#eef6f1}
+  .badge.bad{color:var(--red);border-color:#e3bcc4;background:#faeef0}
+  .wrap{max-width:1500px;margin:0 auto;padding:24px 28px;
+    display:grid;grid-template-columns:1.55fr 1fr;gap:18px}
+  .kpis{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--navy);
+    padding:18px 16px 14px}
+  .kpi .n{font-size:30px;font-weight:400;font-family:var(--serif)}
+  .kpi .l{color:var(--mut);font-size:10.5px;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+  .card{background:var(--panel);border:1px solid var(--line);overflow:hidden}
+  .card h2{margin:0;padding:14px 18px;font-size:12px;letter-spacing:1.2px;
+    text-transform:uppercase;color:var(--ink);font-weight:700;background:#fbfaf8;
+    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+  .card .body{padding:8px 12px}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:10px;font-size:13px;border-bottom:1px solid var(--line2)}
+  th{color:var(--mut);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.8px}
+  tr.row{cursor:pointer}
+  tr.row:hover{background:#f6f4ef}
+  .tier{padding:3px 10px;font-size:10.5px;font-weight:700;letter-spacing:.6px}
+  .LOW{color:var(--grn);background:#eaf3ee;border:1px solid #cfe3d7}
+  .ELEVATED{color:var(--amb);background:#f8f3e4;border:1px solid #e7d9b0}
+  .HIGH{color:var(--org);background:#f9ede4;border:1px solid #ecd0ba}
+  .CRITICAL{color:#fff;background:var(--red);border:1px solid var(--red)}
+  .bar{height:6px;background:#e9e7e1;overflow:hidden;min-width:90px}
+  .bar > i{display:block;height:100%}
+  .pager{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px 8px 8px;border-top:1px solid var(--line2)}
+  .pager span{font-size:11px;letter-spacing:.3px}
+  .pager .pbtns{display:flex;gap:6px}
+  .pager button{cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);
+    padding:5px 12px;font-weight:600;font-size:11.5px;letter-spacing:.3px;transition:.15s}
+  .pager button:hover:not(:disabled){background:var(--navy);border-color:var(--navy);color:#fff}
+  .pager button:disabled{opacity:.35;cursor:default}
+  .who{display:flex;flex-direction:column}
+  .who b{font-weight:650}.who small{color:var(--mut)}
+  .feed{max-height:340px;overflow:auto}
+  .alert{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line2);align-items:flex-start}
+  .dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:0 0 auto}
+  .sev-CRITICAL{background:var(--red)} .sev-HIGH{background:var(--org)}
+  .sev-MEDIUM{background:var(--amb)} .sev-LOW{background:var(--steel)} .sev-INFO{background:#9a9a9a}
+  .alert .m{font-size:11px;color:var(--mut)}
+  .scn{display:flex;flex-wrap:wrap;gap:8px;padding:14px}
+  .scn button{cursor:pointer;border:1px solid var(--ink);background:#fff;color:var(--ink);
+    padding:9px 14px;font-weight:600;font-size:12px;letter-spacing:.3px;transition:.15s}
+  .scn button:hover{background:var(--navy);border-color:var(--navy);color:#fff}
+  .jit{padding:12px 14px;border-bottom:1px solid var(--line2)}
+  .jit .h{display:flex;justify-content:space-between;gap:8px}
+  .jit .btns{display:flex;gap:8px;margin-top:9px}
+  .jit button{cursor:pointer;padding:7px 14px;font-weight:600;font-size:12px;border:1px solid;transition:.15s}
+  .approve{color:#fff;background:var(--navy);border-color:var(--navy)}
+  .approve:hover{background:#16304f}
+  .deny{background:#fff;border-color:var(--red);color:var(--red)}
+  .deny:hover{background:var(--red);color:#fff}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;padding:14px}
+  .chip{font-size:11px;padding:4px 10px;background:#f4f3ef;
+    border:1px solid var(--line);color:#4a4a4a}
+  .mut{color:var(--mut)} .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:400px;background:var(--panel2);
+    border-left:1px solid var(--line);transform:translateX(100%);transition:.25s;z-index:20;
+    overflow:auto;box-shadow:-16px 0 40px rgba(20,20,20,.14)}
+  .drawer.open{transform:translateX(0)}
+  .drawer .dh{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;background:#fbfaf8}
+  .drawer .dh b{font-family:var(--serif);font-size:16px;font-weight:600}
+  .drawer .db{padding:18px}
+  .drawer h3{font-family:var(--serif);font-weight:600;font-size:15px}
+  .drawer .x{cursor:pointer;color:var(--mut);font-size:20px;border:none;background:none}
+  .kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line2);font-size:13px}
+  .drivers li{margin:4px 0}
+  .foot{grid-column:1/-1;color:var(--mut);font-size:11px;text-align:center;padding:12px}
+  @media(max-width:1050px){.wrap{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">
+    <div class="logo">Æ</div>
+    <div><h1>AEGIS</h1><span>Insider Threat &amp; Privileged Access Defense · SOC Console · STATIC PREVIEW (baked data)</span></div>
+  </div>
+  <div class="badges" id="badges"></div>
+</div>
+
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card" style="grid-row:span 2">
+    <h2>User Risk Leaderboard <span class="mut" id="lbcount"></span></h2>
+    <div class="body"><table>
+      <thead><tr><th>User</th><th>Role</th><th>Risk</th><th>Tier</th>
+      <th>B / R / C</th><th>Alerts</th></tr></thead>
+      <tbody id="lb"></tbody>
+    </table>
+    <div class="pager">
+      <span class="mut" id="lbinfo"></span>
+      <div class="pbtns">
+        <button id="lbprev" onclick="lbNav(-1)">Previous</button>
+        <button id="lbnext" onclick="lbNav(1)">Next</button>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <h2>Inject Insider-Threat Scenario <span class="mut">(live demo)</span></h2>
+    <div class="scn" id="scn"></div>
+  </div>
+
+  <div class="card">
+    <h2>JIT Elevation — Maker/Checker Queue</h2>
+    <div id="jit"><div class="jit mut">No pending requests.</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Live Alert Feed</h2>
+    <div class="feed" id="alerts"></div>
+  </div>
+
+  <div class="card">
+    <h2>MITRE ATT&CK Coverage</h2>
+    <div class="chips" id="mitre"></div>
+  </div>
+
+  <div class="card">
+    <h2>Quantum-Safe Posture &amp; Vault</h2>
+    <div class="body" id="pqc" style="padding:14px"></div>
+  </div>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<div class="drawer" id="drawer">
+  <div class="dh"><b id="dname">User</b><button class="x" onclick="closeDrawer()">✕</button></div>
+  <div class="db" id="dbody"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const __DATA__={"/api/snapshot":{"trained":true,"events_ingested":522,"monitored_users":35,"open_alerts":13,"pending_jit":0,"pqc":{"backend":"x25519+ed25519(classical)","kem_algorithm":"X25519-ECIES","signature_algorithm":"Ed25519","quantum_safe":false,"hybrid_mode":false,"nist_standard":{},"posture":"CLASSICAL-FALLBACK (install liboqs or kyber-py for quantum resistance)"},"audit_blocks":14,"leaderboard":[{"user_id":"U0013","risk_score":79.0,"tier":"HIGH","components":{"behavior":70.0,"rules":100.0,"context":40.0},"open_alerts":7,"last_update":1783098914.769345,"name":"Riya Reddy","role":"sysadmin"},{"user_id":"U0024","risk_score":75.4,"tier":"HIGH","components":{"behavior":68.6,"rules":100.0,"context":20.0},"open_alerts":3,"last_update":1783098914.7680469,"name":"Ananya Bose","role":"contractor_dev"},{"user_id":"U0009","risk_score":68.7,"tier":"HIGH","components":{"behavior":66.1,"rules":84.1,"context":30.0},"open_alerts":3,"last_update":1783098914.7689223,"name":"Aarav Sharma","role":"dba"},{"user_id":"U0017","risk_score":19.0,"tier":"LOW","components":{"behavior":36.2,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Zara Rao","role":"network_admin"},{"user_id":"U0014","risk_score":16.9,"tier":"LOW","components":{"behavior":27.2,"rules":0.0,"context":40.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Ananya Kulkarni","role":"sysadmin"},{"user_id":"U0011","risk_score":15.8,"tier":"LOW","components":{"behavior":28.2,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Rohan Rao","role":"dba"},{"user_id":"U0018","risk_score":12.0,"tier":"LOW","components":{"behavior":18.7,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Farhan Bose","role":"network_admin"},{"user_id":"U0015","risk_score":10.4,"tier":"LOW","components":{"behavior":11.0,"rules":0.0,"context":40.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Rohan Patel","role":"sysadmin"},{"user_id":"U0019","risk_score":7.3,"tier":"LOW","components":{"behavior":7.0,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Ananya Chopra","role":"network_admin"},{"user_id":"U0016","risk_score":7.3,"tier":"LOW","components":{"behavior":7.0,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Zara Nair","role":"network_admin"},{"user_id":"U0035","risk_score":6.7,"tier":"LOW","components":{"behavior":12.9,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Priya Rao","role":"hr"},{"user_id":"U0025","risk_score":6.2,"tier":"LOW","components":{"behavior":0.4,"rules":0.0,"context":40.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Rohan Gupta","role":"contractor_dev"},{"user_id":"U0010","risk_score":5.7,"tier":"LOW","components":{"behavior":3.1,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Karan Das","role":"dba"},{"user_id":"U0012","risk_score":4.5,"tier":"LOW","components":{"behavior":0.1,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Diya Khan","role":"dba"},{"user_id":"U0004","risk_score":4.3,"tier":"LOW","components":{"behavior":1.4,"rules":0.0,"context":25.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Zara Sharma","role":"teller"},{"user_id":"U0028","risk_score":3.9,"tier":"LOW","components":{"behavior":2.2,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Arjun Khan","role":"treasury_ops"},{"user_id":"U0030","risk_score":3.4,"tier":"LOW","components":{"behavior":1.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Kavya Patel","role":"treasury_ops"},{"user_id":"U0008","risk_score":3.3,"tier":"LOW","components":{"behavior":4.6,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Aditya Nair","role":"branch_manager"},{"user_id":"U0007","risk_score":3.2,"tier":"LOW","components":{"behavior":4.2,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Priya Iyer","role":"branch_manager"},{"user_id":"U0026","risk_score":3.1,"tier":"LOW","components":{"behavior":0.1,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Devansh Bose","role":"contractor_dev"},{"user_id":"U0027","risk_score":3.0,"tier":"LOW","components":{"behavior":0.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Neel Khan","role":"contractor_dev"},{"user_id":"U0031","risk_score":3.0,"tier":"LOW","components":{"behavior":0.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Kavya Verma","role":"treasury_ops"},{"user_id":"U0029","risk_score":3.0,"tier":"LOW","components":{"behavior":0.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Meera Verma","role":"treasury_ops"},{"user_id":"U0020","risk_score":2.9,"tier":"LOW","components":{"behavior":3.4,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Meera Bose","role":"auditor"},{"user_id":"U0034","risk_score":2.7,"tier":"LOW","components":{"behavior":3.1,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744,"name":"Aarav Iyer","role":"hr"}],"mitre_coverage":[{"technique":"T1021","name":"Remote Services","tactic":"Lateral Movement"},{"technique":"T1052.001","name":"Exfiltration over USB / Physical Medium","tactic":"Exfiltration"},{"technique":"T1070","name":"Indicator Removal (Log Deletion)","tactic":"Defense Evasion"},{"technique":"T1078","name":"Valid Accounts","tactic":"Initial Access / Privilege Escalation"},{"technique":"T1110","name":"Brute Force","tactic":"Credential Access"},{"technique":"T1136","name":"Create Account","tactic":"Persistence"},{"technique":"T1213","name":"Data from Information Repositories","tactic":"Collection"},{"technique":"T1548","name":"Abuse Elevation Control Mechanism","tactic":"Privilege Escalation"},{"technique":"T1562","name":"Impair Defenses","tactic":"Defense Evasion"},{"technique":"T1567","name":"Exfiltration Over Web Service","tactic":"Exfiltration"}]},"/api/alerts":[{"user_id":"U0013","rule_id":"R008","title":"Firewall/defense change without approval","severity":"HIGH","alert_id":"995ec9b50e0e","ts":1783098914.7695594,"mitre_tactic":"Defense Evasion","mitre_technique":"T1562 Impair Defenses","evidence":{"command":"iptables -F"},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R007","title":"Audit log deletion / tampering detected","severity":"CRITICAL","alert_id":"52765de5a652","ts":1783098914.7695556,"mitre_tactic":"Defense Evasion","mitre_technique":"T1070 Indicator Removal (Log Deletion)","evidence":{"target":"/var/log/audit/audit.log"},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R006","title":"New privileged account created without change ticket","severity":"CRITICAL","alert_id":"d2e8b5e2d547","ts":1783098914.7695513,"mitre_tactic":"Persistence","mitre_technique":"T1136 Create Account","evidence":{"accounts":["","","","svc_backup_x"]},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R005","title":"Privilege escalation attempt (self-grant)","severity":"CRITICAL","alert_id":"04ee1c558176","ts":1783098914.7695458,"mitre_tactic":"Privilege Escalation","mitre_technique":"T1548 Abuse Elevation Control Mechanism","evidence":{"command":"GRANT DBA TO self","ticket":"NONE"},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0009","rule_id":"R010","title":"Bulk record extraction (500,000 rows from CORE.TXN_LEDGER)","severity":"HIGH","alert_id":"d7a3e5c2a58a","ts":1783098914.76922,"mitre_tactic":"Collection","mitre_technique":"T1213 Data from Information Repositories","evidence":{"table":"CORE.TXN_LEDGER","records":500000},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0009","rule_id":"R002","title":"9 failed logins (possible brute force)","severity":"HIGH","alert_id":"07a4be068195","ts":1783098914.769185,"mitre_tactic":"Credential Access","mitre_technique":"T1110 Brute Force","evidence":{"failed_attempts":9,"src_ip":"45.83.12.7"},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0009","rule_id":"R001","title":"Login from unusual country (RU-MOW-Moscow)","severity":"HIGH","alert_id":"8dfdfb5bf445","ts":1783098914.7691793,"mitre_tactic":"Initial Access / Privilege Escalation","mitre_technique":"T1078 Valid Accounts","evidence":{"geo":"RU-MOW-Moscow","home":"IN-KA-Bengaluru","src_ip":"45.83.12.7"},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R008","title":"Firewall/defense change without approval","severity":"HIGH","alert_id":"e53ebdb7313c","ts":1783098914.7687776,"mitre_tactic":"Defense Evasion","mitre_technique":"T1562 Impair Defenses","evidence":{"command":"iptables -F"},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R006","title":"New privileged account created without change ticket","severity":"CRITICAL","alert_id":"d159a48dcb42","ts":1783098914.768772,"mitre_tactic":"Persistence","mitre_technique":"T1136 Create Account","evidence":{"accounts":["","","","svc_backup_x"]},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R005","title":"Privilege escalation attempt (self-grant)","severity":"CRITICAL","alert_id":"a64344539d26","ts":1783098914.7687654,"mitre_tactic":"Privilege Escalation","mitre_technique":"T1548 Abuse Elevation Control Mechanism","evidence":{"command":"GRANT DBA TO self","ticket":"NONE"},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0024","rule_id":"R012","title":"Privileged use from unrecognized host (WS-GUEST-666)","severity":"MEDIUM","alert_id":"a3e19f02eb7d","ts":1783098914.7683513,"mitre_tactic":"Lateral Movement","mitre_technique":"T1021 Remote Services","evidence":{"hosts":["WS-GUEST-666"],"known":["WS-CON-672","WS-CON-769"]},"risk_contribution":35.0,"acknowledged":false,"response_action":""},{"user_id":"U0024","rule_id":"R004","title":"Large upload to external service (mega.nz)","severity":"CRITICAL","alert_id":"b18bef5904c9","ts":1783098914.7683244,"mitre_tactic":"Exfiltration","mitre_technique":"T1567 Exfiltration Over Web Service","evidence":{"destination":"mega.nz","bytes":140000000},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0024","rule_id":"R003","title":"Bulk copy to removable media (180 MB)","severity":"CRITICAL","alert_id":"2a8b1dbf5e9c","ts":1783098914.768315,"mitre_tactic":"Exfiltration","mitre_technique":"T1052.001 Exfiltration over USB / Physical Medium","evidence":{"device":"USB:Kingston-8GB","bytes":180000000,"records":250000},"risk_contribution":100.0,"acknowledged":false,"response_action":""}],"/api/audit":{"length":14,"integrity_valid":true,"broken_at":null,"signature_algorithm":"Ed25519","blocks":[{"index":0,"ts":1783098914.7484462,"actor":"system","action":"BASELINE_TRAINED","payload":{"users":35,"events":8293,"iforest_backend":"numpy"},"prev_hash":"0000000000000000000000000000000000000000000000000000000000000000","block_hash":"75addae430db05336c6241fc6d616d0207c21c54a5ba3565df40d5005903e1fb","signature_preview":"0472ce34e1dbde5d6870d648\u2026"},{"index":1,"ts":1783098914.768367,"actor":"U0024","action":"ALERT","payload":{"rule":"R003","title":"Bulk copy to removable media (180 MB)","severity":"CRITICAL","mitre":"T1052.001 Exfiltration over USB / Physical Medium"},"prev_hash":"75addae430db05336c6241fc6d616d0207c21c54a5ba3565df40d5005903e1fb","block_hash":"0f537faee52ba60c9d9e4096ed3b8151febec95e5cba88f5ff5dce6b2eb5baca","signature_preview":"3f71a66ba9e8312e0e6d7f3b\u2026"},{"index":2,"ts":1783098914.7684598,"actor":"U0024","action":"ALERT","payload":{"rule":"R004","title":"Large upload to external service (mega.nz)","severity":"CRITICAL","mitre":"T1567 Exfiltration Over Web Service"},"prev_hash":"0f537faee52ba60c9d9e4096ed3b8151febec95e5cba88f5ff5dce6b2eb5baca","block_hash":"2d98cddaa7a5173a39efa81428d7f01e779ebcf55d978298a2326a59e2c6c9f8","signature_preview":"c48434517c8e2b8849507a99\u2026"},{"index":3,"ts":1783098914.7684948,"actor":"U0024","action":"ALERT","payload":{"rule":"R012","title":"Privileged use from unrecognized host (WS-GUEST-666)","severity":"MEDIUM","mitre":"T1021 Remote Services"},"prev_hash":"2d98cddaa7a5173a39efa81428d7f01e779ebcf55d978298a2326a59e2c6c9f8","block_hash":"e86c6dfa04df2b41204222093e4a0848465fb57beff1754cc5771b040305e74a","signature_preview":"f3a3371e06a5fbdf90cdc93c\u2026"},{"index":4,"ts":1783098914.7688,"actor":"U0013","action":"ALERT","payload":{"rule":"R005","title":"Privilege escalation attempt (self-grant)","severity":"CRITICAL","mitre":"T1548 Abuse Elevation Control Mechanism"},"prev_hash":"e86c6dfa04df2b41204222093e4a0848465fb57beff1754cc5771b040305e74a","block_hash":"b6ec99266cc4a59f3fc01c91d58cadcfe44815122396a1fcdba4c201dc2c7341","signature_preview":"48516c56442bb59076ce93c2\u2026"},{"index":5,"ts":1783098914.768836,"actor":"U0013","action":"ALERT","payload":{"rule":"R006","title":"New privileged account created without change ticket","severity":"CRITICAL","mitre":"T1136 Create Account"},"prev_hash":"b6ec99266cc4a59f3fc01c91d58cadcfe44815122396a1fcdba4c201dc2c7341","block_hash":"d863c21e2cadc875afa5db68c9dc277872128af31f109c099eee3e096f3539f1","signature_preview":"90e5c06626d6408572f4943a\u2026"},{"index":6,"ts":1783098914.7688682,"actor":"U0013","action":"ALERT","payload":{"rule":"R008","title":"Firewall/defense change without approval","severity":"HIGH","mitre":"T1562 Impair Defenses"},"prev_hash":"d863c21e2cadc875afa5db68c9dc277872128af31f109c099eee3e096f3539f1","block_hash":"812e4ec69899a749cb0a0b8898634a09307e2be41cc4dfefab2abc9f93d7ace4","signature_preview":"1717eeba51859a516cacdba7\u2026"},{"index":7,"ts":1783098914.769233,"actor":"U0009","action":"ALERT","payload":{"rule":"R001","title":"Login from unusual country (RU-MOW-Moscow)","severity":"HIGH","mitre":"T1078 Valid Accounts"},"prev_hash":"812e4ec69899a749cb0a0b8898634a09307e2be41cc4dfefab2abc9f93d7ace4","block_hash":"f90f259ce1359c1691b783abb34a37189670081bf5cf06e536b66c8f65750a48","signature_preview":"1bce07118a70912bfa88edf4\u2026"},{"index":8,"ts":1783098914.7692735,"actor":"U0009","action":"ALERT","payload":{"rule":"R002","title":"9 failed logins (possible brute force)","severity":"HIGH","mitre":"T1110 Brute Force"},"prev_hash":"f90f259ce1359c1691b783abb34a37189670081bf5cf06e536b66c8f65750a48","block_hash":"7747c95fca196c8f7c2608cc7482228213c0689009bd8a6bf1fa1214ff98f892","signature_preview":"f01781f29383fe4309f7998f\u2026"},{"index":9,"ts":1783098914.7693057,"actor":"U0009","action":"ALERT","payload":{"rule":"R010","title":"Bulk record extraction (500,000 rows from CORE.TXN_LEDGER)","severity":"HIGH","mitre":"T1213 Data from Information Repositories"},"prev_hash":"7747c95fca196c8f7c2608cc7482228213c0689009bd8a6bf1fa1214ff98f892","block_hash":"92c1413a79314b5486a56881e2462eeb4bc71e6dbd8df85b43f802359a575840","signature_preview":"814bb28fa4752a472a2f5c50\u2026"},{"index":10,"ts":1783098914.7695823,"actor":"U0013","action":"ALERT","payload":{"rule":"R005","title":"Privilege escalation attempt (self-grant)","severity":"CRITICAL","mitre":"T1548 Abuse Elevation Control Mechanism"},"prev_hash":"92c1413a79314b5486a56881e2462eeb4bc71e6dbd8df85b43f802359a575840","block_hash":"a999eefd7cc05f9eef8319d3385e9bcab6344b1bb1291dcac625c3156d68cce0","signature_preview":"d8458d50d0236f25948c10d6\u2026"},{"index":11,"ts":1783098914.76962,"actor":"U0013","action":"ALERT","payload":{"rule":"R006","title":"New privileged account created without change ticket","severity":"CRITICAL","mitre":"T1136 Create Account"},"prev_hash":"a999eefd7cc05f9eef8319d3385e9bcab6344b1bb1291dcac625c3156d68cce0","block_hash":"b41fc77cc0f1c169d992debba180373b94a3a51e1cc33a32716ca15a96a186f7","signature_preview":"b2ed479825130b9c55972b63\u2026"},{"index":12,"ts":1783098914.7696528,"actor":"U0013","action":"ALERT","payload":{"rule":"R007","title":"Audit log deletion / tampering detected","severity":"CRITICAL","mitre":"T1070 Indicator Removal (Log Deletion)"},"prev_hash":"b41fc77cc0f1c169d992debba180373b94a3a51e1cc33a32716ca15a96a186f7","block_hash":"3003bef5add4dfacdcc46823fffa4173919d2cee6eafaf8d4a4aafbec2dfd964","signature_preview":"226b2988b8cc8c55f72c4210\u2026"},{"index":13,"ts":1783098914.7696834,"actor":"U0013","action":"ALERT","payload":{"rule":"R008","title":"Firewall/defense change without approval","severity":"HIGH","mitre":"T1562 Impair Defenses"},"prev_hash":"3003bef5add4dfacdcc46823fffa4173919d2cee6eafaf8d4a4aafbec2dfd964","block_hash":"dba7ad856a31d9f2e5d8c79cb7618197ea696a97135460b9c518369edc4f9a27","signature_preview":"e10c6dc8a62b6a9e87f23a5e\u2026"}]},"/api/vault":{"sealed_secrets":4,"kem_backend":"x25519+ed25519(classical)","quantum_safe":false,"secrets":[{"name":"core_banking_db_root","access_count":0,"age_hours":0.0},{"name":"swift_gateway_key","access_count":0,"age_hours":0.0},{"name":"ad_domain_admin","access_count":0,"age_hours":0.0},{"name":"hsm_pin","access_count":0,"age_hours":0.0}]},"/api/jit":{"pending":[{"request_id":"JIT-68de339b","user_id":"U0009","role_requested":"dba_break_glass","resource":"CORE.TXN_LEDGER","justification":"emergency patch","risk_at_request":72,"status":"PENDING","approver":"","auto_approved":false,"expires_in_s":null}],"all":[{"request_id":"JIT-68de339b","user_id":"U0009","role_requested":"dba_break_glass","resource":"CORE.TXN_LEDGER","justification":"emergency patch","risk_at_request":72,"status":"PENDING","approver":"","auto_approved":false,"expires_in_s":null}]},"/api/scenarios":["data_exfiltration","privilege_escalation","compromised_credentials","log_tampering","dormant_then_burst"],"/api/users/U0013":{"user":{"user_id":"U0013","name":"Riya Reddy","role":"sysadmin","department":"IT Infrastructure","privilege_level":5,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-SYS-558"]},"risk":{"user_id":"U0013","risk_score":79.0,"tier":"HIGH","components":{"behavior":70.0,"rules":100.0,"context":40.0},"open_alerts":7,"last_update":1783098914.769345},"behavior":{"user_id":"U0013","behavior_score":70.0,"components":{"autoencoder":1.0,"isolation_forest":1.0,"self_deviation":0.157,"peer_deviation":0.124},"drivers":["distinct event types: 8.0\u03c3 above own baseline","config change count: 2.0\u03c3 above own baseline","distinct hosts: 2.0\u03c3 above own baseline"]},"recent_alerts":[{"user_id":"U0013","rule_id":"R008","title":"Firewall/defense change without approval","severity":"HIGH","alert_id":"995ec9b50e0e","ts":1783098914.7695594,"mitre_tactic":"Defense Evasion","mitre_technique":"T1562 Impair Defenses","evidence":{"command":"iptables -F"},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R007","title":"Audit log deletion / tampering detected","severity":"CRITICAL","alert_id":"52765de5a652","ts":1783098914.7695556,"mitre_tactic":"Defense Evasion","mitre_technique":"T1070 Indicator Removal (Log Deletion)","evidence":{"target":"/var/log/audit/audit.log"},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R006","title":"New privileged account created without change ticket","severity":"CRITICAL","alert_id":"d2e8b5e2d547","ts":1783098914.7695513,"mitre_tactic":"Persistence","mitre_technique":"T1136 Create Account","evidence":{"accounts":["","","","svc_backup_x"]},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R005","title":"Privilege escalation attempt (self-grant)","severity":"CRITICAL","alert_id":"04ee1c558176","ts":1783098914.7695458,"mitre_tactic":"Privilege Escalation","mitre_technique":"T1548 Abuse Elevation Control Mechanism","evidence":{"command":"GRANT DBA TO self","ticket":"NONE"},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R008","title":"Firewall/defense change without approval","severity":"HIGH","alert_id":"e53ebdb7313c","ts":1783098914.7687776,"mitre_tactic":"Defense Evasion","mitre_technique":"T1562 Impair Defenses","evidence":{"command":"iptables -F"},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R006","title":"New privileged account created without change ticket","severity":"CRITICAL","alert_id":"d159a48dcb42","ts":1783098914.768772,"mitre_tactic":"Persistence","mitre_technique":"T1136 Create Account","evidence":{"accounts":["","","","svc_backup_x"]},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0013","rule_id":"R005","title":"Privilege escalation attempt (self-grant)","severity":"CRITICAL","alert_id":"a64344539d26","ts":1783098914.7687654,"mitre_tactic":"Privilege Escalation","mitre_technique":"T1548 Abuse Elevation Control Mechanism","evidence":{"command":"GRANT DBA TO self","ticket":"NONE"},"risk_contribution":100.0,"acknowledged":false,"response_action":""}]},"/api/users/U0024":{"user":{"user_id":"U0024","name":"Ananya Bose","role":"contractor_dev","department":"Digital Engineering (Vendor)","privilege_level":3,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-CON-672","WS-CON-769"]},"risk":{"user_id":"U0024","risk_score":75.4,"tier":"HIGH","components":{"behavior":68.6,"rules":100.0,"context":20.0},"open_alerts":3,"last_update":1783098914.7680469},"behavior":{"user_id":"U0024","behavior_score":68.6,"components":{"autoencoder":1.0,"isolation_forest":0.803,"self_deviation":0.268,"peer_deviation":0.273},"drivers":["log max records: 33.5\u03c3 above own baseline","log total bytes out: 6.1\u03c3 above own baseline","event count: 5.7\u03c3 above own baseline"]},"recent_alerts":[{"user_id":"U0024","rule_id":"R012","title":"Privileged use from unrecognized host (WS-GUEST-666)","severity":"MEDIUM","alert_id":"a3e19f02eb7d","ts":1783098914.7683513,"mitre_tactic":"Lateral Movement","mitre_technique":"T1021 Remote Services","evidence":{"hosts":["WS-GUEST-666"],"known":["WS-CON-672","WS-CON-769"]},"risk_contribution":35.0,"acknowledged":false,"response_action":""},{"user_id":"U0024","rule_id":"R004","title":"Large upload to external service (mega.nz)","severity":"CRITICAL","alert_id":"b18bef5904c9","ts":1783098914.7683244,"mitre_tactic":"Exfiltration","mitre_technique":"T1567 Exfiltration Over Web Service","evidence":{"destination":"mega.nz","bytes":140000000},"risk_contribution":100.0,"acknowledged":false,"response_action":""},{"user_id":"U0024","rule_id":"R003","title":"Bulk copy to removable media (180 MB)","severity":"CRITICAL","alert_id":"2a8b1dbf5e9c","ts":1783098914.768315,"mitre_tactic":"Exfiltration","mitre_technique":"T1052.001 Exfiltration over USB / Physical Medium","evidence":{"device":"USB:Kingston-8GB","bytes":180000000,"records":250000},"risk_contribution":100.0,"acknowledged":false,"response_action":""}]},"/api/users/U0009":{"user":{"user_id":"U0009","name":"Aarav Sharma","role":"dba","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-KA-Bengaluru","usual_hosts":["WS-DBA-314"]},"risk":{"user_id":"U0009","risk_score":68.7,"tier":"HIGH","components":{"behavior":66.1,"rules":84.1,"context":30.0},"open_alerts":3,"last_update":1783098914.7689223},"behavior":{"user_id":"U0009","behavior_score":66.1,"components":{"autoencoder":1.0,"isolation_forest":0.794,"self_deviation":0.214,"peer_deviation":0.197},"drivers":["log max records: first-seen / far above own baseline","failed login count: 18.0\u03c3 above own baseline","after hours ratio: 8.1\u03c3 above own baseline"]},"recent_alerts":[{"user_id":"U0009","rule_id":"R010","title":"Bulk record extraction (500,000 rows from CORE.TXN_LEDGER)","severity":"HIGH","alert_id":"d7a3e5c2a58a","ts":1783098914.76922,"mitre_tactic":"Collection","mitre_technique":"T1213 Data from Information Repositories","evidence":{"table":"CORE.TXN_LEDGER","records":500000},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0009","rule_id":"R002","title":"9 failed logins (possible brute force)","severity":"HIGH","alert_id":"07a4be068195","ts":1783098914.769185,"mitre_tactic":"Credential Access","mitre_technique":"T1110 Brute Force","evidence":{"failed_attempts":9,"src_ip":"45.83.12.7"},"risk_contribution":65.0,"acknowledged":false,"response_action":""},{"user_id":"U0009","rule_id":"R001","title":"Login from unusual country (RU-MOW-Moscow)","severity":"HIGH","alert_id":"8dfdfb5bf445","ts":1783098914.7691793,"mitre_tactic":"Initial Access / Privilege Escalation","mitre_technique":"T1078 Valid Accounts","evidence":{"geo":"RU-MOW-Moscow","home":"IN-KA-Bengaluru","src_ip":"45.83.12.7"},"risk_contribution":65.0,"acknowledged":false,"response_action":""}]},"/api/users/U0017":{"user":{"user_id":"U0017","name":"Zara Rao","role":"network_admin","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-NET-495","WS-NET-175"]},"risk":{"user_id":"U0017","risk_score":19.0,"tier":"LOW","components":{"behavior":36.2,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0017","behavior_score":36.2,"components":{"autoencoder":0.404,"isolation_forest":0.708,"self_deviation":0.016,"peer_deviation":0.034},"drivers":["priv command count: 1.3\u03c3 above own baseline","novel config change count","novel priv command count"]},"recent_alerts":[]},"/api/users/U0014":{"user":{"user_id":"U0014","name":"Ananya Kulkarni","role":"sysadmin","department":"IT Infrastructure","privilege_level":5,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-SYS-219","WS-SYS-504"]},"risk":{"user_id":"U0014","risk_score":16.9,"tier":"LOW","components":{"behavior":27.2,"rules":0.0,"context":40.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0014","behavior_score":27.2,"components":{"autoencoder":0.285,"isolation_forest":0.525,"self_deviation":0.024,"peer_deviation":0.066},"drivers":["log max records: 1.3\u03c3 above own baseline","novel unticketed change ratio","novel config change count"]},"recent_alerts":[]},"/api/users/U0011":{"user":{"user_id":"U0011","name":"Rohan Rao","role":"dba","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-DBA-418"]},"risk":{"user_id":"U0011","risk_score":15.8,"tier":"LOW","components":{"behavior":28.2,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0011","behavior_score":28.2,"components":{"autoencoder":0.309,"isolation_forest":0.548,"self_deviation":0.024,"peer_deviation":0.027},"drivers":["unticketed change ratio: 2.0\u03c3 above own baseline","novel unticketed change ratio","novel config change count"]},"recent_alerts":[]},"/api/users/U0018":{"user":{"user_id":"U0018","name":"Farhan Bose","role":"network_admin","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-NET-715"]},"risk":{"user_id":"U0018","risk_score":12.0,"tier":"LOW","components":{"behavior":18.7,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0018","behavior_score":18.7,"components":{"autoencoder":0.074,"isolation_forest":0.537,"self_deviation":0.0,"peer_deviation":0.0},"drivers":["novel config change count","novel log max records"]},"recent_alerts":[]},"/api/users/U0015":{"user":{"user_id":"U0015","name":"Rohan Patel","role":"sysadmin","department":"IT Infrastructure","privilege_level":5,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-SYS-315"]},"risk":{"user_id":"U0015","risk_score":10.4,"tier":"LOW","components":{"behavior":11.0,"rules":0.0,"context":40.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0015","behavior_score":11.0,"components":{"autoencoder":0.267,"isolation_forest":0.043,"self_deviation":0.01,"peer_deviation":0.01},"drivers":["novel event count","novel pii view count"]},"recent_alerts":[]},"/api/users/U0019":{"user":{"user_id":"U0019","name":"Ananya Chopra","role":"network_admin","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-NET-987"]},"risk":{"user_id":"U0019","risk_score":7.3,"tier":"LOW","components":{"behavior":7.0,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0019","behavior_score":7.0,"components":{"autoencoder":0.0,"isolation_forest":0.221,"self_deviation":0.005,"peer_deviation":0.017},"drivers":["novel priv command count","novel log total bytes out"]},"recent_alerts":[]},"/api/users/U0016":{"user":{"user_id":"U0016","name":"Zara Nair","role":"network_admin","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-NET-249"]},"risk":{"user_id":"U0016","risk_score":7.3,"tier":"LOW","components":{"behavior":7.0,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0016","behavior_score":7.0,"components":{"autoencoder":0.0,"isolation_forest":0.204,"self_deviation":0.025,"peer_deviation":0.024},"drivers":["novel priv command count","novel event count"]},"recent_alerts":[]},"/api/users/U0035":{"user":{"user_id":"U0035","name":"Priya Rao","role":"hr","department":"Human Resources","privilege_level":2,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-HR-852","WS-HR-810"]},"risk":{"user_id":"U0035","risk_score":6.7,"tier":"LOW","components":{"behavior":12.9,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0035","behavior_score":12.9,"components":{"autoencoder":0.0,"isolation_forest":0.413,"self_deviation":0.006,"peer_deviation":0.027},"drivers":["distinct hosts: 2.0\u03c3 above hr peers","novel pii view count","novel after hours ratio"]},"recent_alerts":[]},"/api/users/U0025":{"user":{"user_id":"U0025","name":"Rohan Gupta","role":"contractor_dev","department":"Digital Engineering (Vendor)","privilege_level":3,"mfa_enrolled":false,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-CON-866"]},"risk":{"user_id":"U0025","risk_score":6.2,"tier":"LOW","components":{"behavior":0.4,"rules":0.0,"context":40.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0025","behavior_score":0.4,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.012,"peer_deviation":0.012},"drivers":["novel unticketed change ratio","novel priv command count"]},"recent_alerts":[]},"/api/users/U0010":{"user":{"user_id":"U0010","name":"Karan Das","role":"dba","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-DBA-174","WS-DBA-679"]},"risk":{"user_id":"U0010","risk_score":5.7,"tier":"LOW","components":{"behavior":3.1,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0010","behavior_score":3.1,"components":{"autoencoder":0.066,"isolation_forest":0.0,"self_deviation":0.02,"peer_deviation":0.027},"drivers":["priv command count: 1.0\u03c3 above own baseline","novel config change count","novel priv command count"]},"recent_alerts":[]},"/api/users/U0012":{"user":{"user_id":"U0012","name":"Diya Khan","role":"dba","department":"IT Infrastructure","privilege_level":4,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-KA-Bengaluru","usual_hosts":["WS-DBA-823"]},"risk":{"user_id":"U0012","risk_score":4.5,"tier":"LOW","components":{"behavior":0.1,"rules":0.0,"context":30.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0012","behavior_score":0.1,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.005,"peer_deviation":0.001},"drivers":["novel event count","novel config change count"]},"recent_alerts":[]},"/api/users/U0004":{"user":{"user_id":"U0004","name":"Zara Sharma","role":"teller","department":"Retail Banking","privilege_level":1,"mfa_enrolled":false,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-TEL-160"]},"risk":{"user_id":"U0004","risk_score":4.3,"tier":"LOW","components":{"behavior":1.4,"rules":0.0,"context":25.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0004","behavior_score":1.4,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.066,"peer_deviation":0.005},"drivers":["sensitivity sum: 2.0\u03c3 above own baseline","pii view count: 2.0\u03c3 above own baseline","event count: 1.7\u03c3 above own baseline"]},"recent_alerts":[]},"/api/users/U0028":{"user":{"user_id":"U0028","name":"Arjun Khan","role":"treasury_ops","department":"Treasury","privilege_level":3,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-TRE-118"]},"risk":{"user_id":"U0028","risk_score":3.9,"tier":"LOW","components":{"behavior":2.2,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0028","behavior_score":2.2,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.07,"peer_deviation":0.055},"drivers":["event count: 2.4\u03c3 above own baseline","sensitivity sum: 1.5\u03c3 above own baseline","log total bytes out: 1.2\u03c3 above own baseline"]},"recent_alerts":[]},"/api/users/U0030":{"user":{"user_id":"U0030","name":"Kavya Patel","role":"treasury_ops","department":"Treasury","privilege_level":3,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-TRE-239","WS-TRE-174"]},"risk":{"user_id":"U0030","risk_score":3.4,"tier":"LOW","components":{"behavior":1.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0030","behavior_score":1.0,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.021,"peer_deviation":0.041},"drivers":["log total bytes out: 1.1\u03c3 above own baseline","novel unticketed change ratio","novel priv command count"]},"recent_alerts":[]},"/api/users/U0008":{"user":{"user_id":"U0008","name":"Aditya Nair","role":"branch_manager","department":"Retail Banking","privilege_level":2,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-KA-Bengaluru","usual_hosts":["WS-BRA-210","WS-BRA-966"]},"risk":{"user_id":"U0008","risk_score":3.3,"tier":"LOW","components":{"behavior":4.6,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0008","behavior_score":4.6,"components":{"autoencoder":0.008,"isolation_forest":0.065,"self_deviation":0.084,"peer_deviation":0.044},"drivers":["external upload count: 2.0\u03c3 above own baseline","pii view count: 1.0\u03c3 above own baseline","novel pii view count","novel config change count"]},"recent_alerts":[]},"/api/users/U0007":{"user":{"user_id":"U0007","name":"Priya Iyer","role":"branch_manager","department":"Retail Banking","privilege_level":2,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-BRA-422","WS-BRA-876"]},"risk":{"user_id":"U0007","risk_score":3.2,"tier":"LOW","components":{"behavior":4.2,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0007","behavior_score":4.2,"components":{"autoencoder":0.007,"isolation_forest":0.112,"self_deviation":0.016,"peer_deviation":0.023},"drivers":["log max records: 1.1\u03c3 above own baseline","novel log max records","novel distinct event types"]},"recent_alerts":[]},"/api/users/U0026":{"user":{"user_id":"U0026","name":"Devansh Bose","role":"contractor_dev","department":"Digital Engineering (Vendor)","privilege_level":3,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-CON-147"]},"risk":{"user_id":"U0026","risk_score":3.1,"tier":"LOW","components":{"behavior":0.1,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0026","behavior_score":0.1,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.002,"peer_deviation":0.006},"drivers":["novel unticketed change ratio","novel config change count"]},"recent_alerts":[]},"/api/users/U0027":{"user":{"user_id":"U0027","name":"Neel Khan","role":"contractor_dev","department":"Digital Engineering (Vendor)","privilege_level":3,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-CON-470"]},"risk":{"user_id":"U0027","risk_score":3.0,"tier":"LOW","components":{"behavior":0.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0027","behavior_score":0.0,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.001,"peer_deviation":0.001},"drivers":["novel config change count","novel priv command count"]},"recent_alerts":[]},"/api/users/U0031":{"user":{"user_id":"U0031","name":"Kavya Verma","role":"treasury_ops","department":"Treasury","privilege_level":3,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-TRE-912"]},"risk":{"user_id":"U0031","risk_score":3.0,"tier":"LOW","components":{"behavior":0.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0031","behavior_score":0.0,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.0,"peer_deviation":0.0},"drivers":["novel event count","novel pii view count"]},"recent_alerts":[]},"/api/users/U0029":{"user":{"user_id":"U0029","name":"Meera Verma","role":"treasury_ops","department":"Treasury","privilege_level":3,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-TRE-712"]},"risk":{"user_id":"U0029","risk_score":3.0,"tier":"LOW","components":{"behavior":0.0,"rules":0.0,"context":20.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0029","behavior_score":0.0,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.0,"peer_deviation":0.0},"drivers":["novel log max records","novel event count"]},"recent_alerts":[]},"/api/users/U0020":{"user":{"user_id":"U0020","name":"Meera Bose","role":"auditor","department":"Internal Audit","privilege_level":2,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-AUD-842"]},"risk":{"user_id":"U0020","risk_score":2.9,"tier":"LOW","components":{"behavior":3.4,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0020","behavior_score":3.4,"components":{"autoencoder":0.074,"isolation_forest":0.0,"self_deviation":0.03,"peer_deviation":0.016},"drivers":["log total bytes out: 1.8\u03c3 above own baseline","novel priv command count","novel log max records"]},"recent_alerts":[]},"/api/users/U0034":{"user":{"user_id":"U0034","name":"Aarav Iyer","role":"hr","department":"Human Resources","privilege_level":2,"mfa_enrolled":true,"employment_status":"active","on_watchlist":false,"home_geo":"IN-MH-Mumbai","usual_hosts":["WS-HR-192"]},"risk":{"user_id":"U0034","risk_score":2.7,"tier":"LOW","components":{"behavior":3.1,"rules":0.0,"context":10.0},"open_alerts":0,"last_update":1783098914.44744},"behavior":{"user_id":"U0034","behavior_score":3.1,"components":{"autoencoder":0.0,"isolation_forest":0.0,"self_deviation":0.099,"peer_deviation":0.075},"drivers":["pii view count: 4.0\u03c3 above own baseline","sensitivity sum: 2.3\u03c3 above own baseline","event count: 2.0\u03c3 above own baseline"]},"recent_alerts":[]}};
+const api=(p,o)=>{const key=p.split('?')[0];if(o&&o.method==='POST'){  if(key.indexOf('/api/scenario/')===0){return Promise.resolve({scenario:key.split('/').pop(),target_name:'(demo)',role:'-',new_risk:79,tier:'HIGH'});}  return Promise.resolve({status:'APPROVED'});}return Promise.resolve(__DATA__[key]!==undefined?__DATA__[key]:{});};
+function pct(v){return Math.max(0,Math.min(100,v));}
+function riskColor(v){return v>=80?'#9e1b32':v>=60?'#b04a17':v>=40?'#a07618':'#256d46';}
+
+let lbData=[],lbPage=0;const LB_PS=10;
+function renderLb(){
+  const total=lbData.length,pages=Math.max(1,Math.ceil(total/LB_PS));
+  lbPage=Math.max(0,Math.min(lbPage,pages-1));
+  const start=lbPage*LB_PS;
+  $('lb').innerHTML=lbData.slice(start,start+LB_PS).map(u=>{
+    const c=u.components;
+    return `<tr class="row" onclick="openUser('${u.user_id}')">
+      <td><div class="who"><b>${u.name}</b><small class="mono">${u.user_id}</small></div></td>
+      <td class="mut">${u.role}</td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="bar"><i style="width:${pct(u.risk_score)}%;background:${riskColor(u.risk_score)}"></i></div>
+        <b>${u.risk_score}</b></div></td>
+      <td><span class="tier ${u.tier}">${u.tier}</span></td>
+      <td class="mono mut">${c.behavior}/${c.rules}/${c.context}</td>
+      <td>${u.open_alerts?`<b style="color:var(--org)">${u.open_alerts}</b>`:'<span class="mut">0</span>'}</td>
+    </tr>`;}).join('');
+  $('lbinfo').textContent=total?`Showing ${start+1}–${Math.min(start+LB_PS,total)} of ${total}`:'No users';
+  $('lbprev').disabled=lbPage===0;
+  $('lbnext').disabled=lbPage>=pages-1;
+}
+function lbNav(d){lbPage+=d;renderLb();}
+
+async function refresh(){
+  const s=await api('/api/snapshot');
+  // badges
+  const qs=s.pqc.quantum_safe;
+  const au=await api('/api/audit?limit=1');
+  $('badges').innerHTML=
+    `<span class="badge ${qs?'qs':'cl'}">${s.pqc.kem_algorithm} · ${qs?'QUANTUM-SAFE':'CLASSICAL FALLBACK'}</span>`+
+    `<span class="badge ${au.integrity_valid?'ok':'bad'}">Audit ${au.integrity_valid?'INTACT':'TAMPERED'} · ${au.length} blocks</span>`+
+    `<span class="badge">${s.pqc.signature_algorithm}</span>`;
+  // kpis
+  const crit=s.leaderboard.filter(u=>u.tier==='CRITICAL'||u.tier==='HIGH').length;
+  $('kpis').innerHTML=[
+    ['Monitored Users',s.monitored_users],['Events Ingested',s.events_ingested.toLocaleString()],
+    ['High/Critical Users',crit],['Open Alerts',s.open_alerts],
+    ['Pending JIT',s.pending_jit],['Audit Blocks',s.audit_blocks]
+  ].map(([l,n])=>`<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+  // leaderboard
+  $('lbcount').textContent=`(${s.leaderboard.length})`;
+  lbData=s.leaderboard;renderLb();
+  // mitre
+  $('mitre').innerHTML=s.mitre_coverage.map(m=>
+    `<span class="chip" title="${m.tactic}">${m.technique} · ${m.name}</span>`).join('');
+  // pqc + vault
+  const vault=await api('/api/vault');
+  $('pqc').innerHTML=
+    `<div class="kv"><span class="mut">Backend</span><span class="mono">${s.pqc.backend}</span></div>`+
+    `<div class="kv"><span class="mut">KEM</span><span class="mono">${s.pqc.kem_algorithm}</span></div>`+
+    `<div class="kv"><span class="mut">Signature</span><span class="mono">${s.pqc.signature_algorithm}</span></div>`+
+    `<div class="kv"><span class="mut">Hybrid mode</span><span>${s.pqc.hybrid_mode?'Enabled':'—'}</span></div>`+
+    `<div class="kv"><span class="mut">Sealed credentials</span><span>${vault.sealed_secrets} (AES-256-GCM, PQC-wrapped)</span></div>`+
+    `<div class="mut" style="margin-top:8px;font-size:12px">${s.pqc.posture}</div>`;
+}
+
+async function refreshAlerts(){
+  const a=await api('/api/alerts?limit=25');
+  $('alerts').innerHTML=a.length?a.map(x=>
+    `<div class="alert"><div class="dot sev-${x.severity}"></div>
+      <div><div><b>${x.title}</b></div>
+      <div class="m">${x.user_id} · ${x.severity} · ${x.mitre_technique||''}</div></div></div>`
+  ).join(''):'<div class="alert mut">No alerts yet — inject a scenario.</div>';
+}
+
+async function refreshJit(){
+  const j=await api('/api/jit');
+  $('jit').innerHTML=j.pending.length?j.pending.map(r=>
+    `<div class="jit"><div class="h"><b>${r.user_id}</b>
+       <span class="tier HIGH">risk ${r.risk_at_request}</span></div>
+     <div class="mut">${r.role_requested} → ${r.resource} · "${r.justification}"</div>
+     <div class="btns">
+       <button class="approve" onclick="jitAct('${r.request_id}','approve')">Approve (checker)</button>
+       <button class="deny" onclick="jitAct('${r.request_id}','deny')">Deny</button>
+     </div></div>`).join(''):'<div class="jit mut">No pending requests.</div>';
+}
+
+async function jitAct(id,act){
+  await api(`/api/jit/${id}/${act}`,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({approver:'soc-analyst',reason:'reviewed'})});
+  refreshJit();
+}
+
+async function loadScenarios(){
+  const list=await api('/api/scenarios');
+  $('scn').innerHTML=list.map(n=>
+    `<button onclick="inject('${n}')">${n.replace(/_/g,' ')}</button>`).join('');
+}
+async function inject(name){
+  const r=await api(`/api/scenario/${name}`,{method:'POST'});
+  await Promise.all([refresh(),refreshAlerts(),refreshJit()]);
+  $('foot').textContent=`Injected ${name} on ${r.target_name} (${r.role}) → risk ${r.new_risk} [${r.tier}]`;
+}
+
+async function openUser(id){
+  const d=await api('/api/users/'+id);
+  $('dname').textContent=d.user.name+' · '+d.user.role;
+  const b=d.behavior.components;
+  $('dbody').innerHTML=
+    `<div class="kv"><span class="mut">User ID</span><span class="mono">${d.user.user_id}</span></div>`+
+    `<div class="kv"><span class="mut">Risk score</span><b>${d.risk?d.risk.risk_score:'-'} (${d.risk?d.risk.tier:'-'})</b></div>`+
+    `<div class="kv"><span class="mut">Privilege level</span><span>${d.user.privilege_level}/5</span></div>`+
+    `<div class="kv"><span class="mut">MFA</span><span>${d.user.mfa_enrolled?'enrolled':'none'}</span></div>`+
+    `<div class="kv"><span class="mut">Employment</span><span>${d.user.employment_status}</span></div>`+
+    `<h3 style="margin:14px 0 6px">Behavioral components</h3>`+
+    `<div class="kv"><span class="mut">Autoencoder</span><span>${b.autoencoder}</span></div>`+
+    `<div class="kv"><span class="mut">Isolation Forest</span><span>${b.isolation_forest}</span></div>`+
+    `<div class="kv"><span class="mut">Self deviation</span><span>${b.self_deviation}</span></div>`+
+    `<div class="kv"><span class="mut">Peer deviation</span><span>${b.peer_deviation}</span></div>`+
+    `<h3 style="margin:14px 0 6px">Why flagged</h3>`+
+    `<ul class="drivers">${(d.behavior.drivers||[]).map(x=>`<li>${x}</li>`).join('')||'<li class="mut">nominal</li>'}</ul>`+
+    `<h3 style="margin:14px 0 6px">Recent alerts</h3>`+
+    (d.recent_alerts.length?d.recent_alerts.map(a=>
+      `<div class="alert"><div class="dot sev-${a.severity}"></div><div><b>${a.title}</b>
+       <div class="m">${a.mitre_technique}</div></div></div>`).join(''):'<div class="mut">none</div>');
+  $('drawer').classList.add('open');
+}
+function closeDrawer(){$('drawer').classList.remove('open');}
+
+loadScenarios();refresh();refreshAlerts();refreshJit();
+setInterval(()=>{refresh();refreshAlerts();refreshJit();},4000);
+</script>
+</body></html>

@@ -1,0 +1,50 @@
+[project]
+name = "aegis-pam"
+version = "1.0.0"
+description = "AEGIS — AI-driven Privileged Access Misuse & Insider Threat Detection platform with Quantum-Proof Cryptography (FinSpark Hackathon 2026, Problem Statement 1)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Team VIBE" }]
+keywords = [
+    "insider-threat", "ueba", "pam", "post-quantum-cryptography",
+    "risk-based-authentication", "banking-security", "ml-kem", "ml-dsa",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.7",
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "scikit-learn>=1.4",
+    "kyber-py>=1.0.1",      # ML-KEM (FIPS 203) — quantum-safe key encapsulation
+    "dilithium-py>=1.1.0",  # ML-DSA (FIPS 204) — quantum-safe signatures
+    "pycryptodome>=3.20",   # AES-CTR-DRBG required by kyber-py/dilithium-py
+    "xoflib>=0.3.2",        # fast SHAKE XOF for dilithium-py (optional but faster)
+    "cryptography>=43.0",   # AES-256-GCM, HKDF, X25519/Ed25519 (hybrid + fallback)
+]
+
+[project.optional-dependencies]
+# Production-grade PQC via the Open Quantum Safe C library (auto-preferred when
+# present). Requires the liboqs native library on the host.
+oqs = ["liboqs-python>=0.10.0"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+aegis = "aegis.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aegis"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
